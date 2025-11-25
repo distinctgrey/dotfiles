@@ -10,6 +10,7 @@ if [[ -f "$(brew --prefix)/etc/brew-wrap" ]]; then
 fi
 
 #eza_params='--color=always --icons=always'
+eza_params=''
 alias ls='eza $eza_params'
 alias l='eza --git-ignore $eza_params'
 alias ll='eza --all --header --long $eza_params'
