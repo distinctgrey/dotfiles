@@ -1,0 +1,40 @@
+## START GITPOD INTEGRATION
+## This section is managed by Gitpod. Any manual changes will be lost.
+Include "code_gitpod.d/config"
+## END GITPOD INTEGRATION
+
+UseKeychain yes
+ForwardAgent yes
+
+Host spencerstag
+    HostName spencermultisso-staging.spencer.farm
+    User ubuntu
+    IdentityFile ~/.ssh/id_rsa_stijn
+Host spencerstagv2
+    HostName spencermultissov2-staging.spencer.farm
+    User ubuntu
+    IdentityFile ~/.ssh/id_rsa
+Host spencerprod
+    HostName spencermultisso-production.spencer.farm
+    User ubuntu
+    IdentityFile ~/.ssh/id_rsa_stijn
+Host spencerprodv2
+    HostName spencermultissov2-production.spencer.farm
+    User ubuntu
+    IdentityFile ~/.ssh/id_rsa
+
+Host *.github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host *.bitbucket.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host tailscaletmp
+    # HostName 100.72.233.58
+    HostName 20.4.29.60
+    User ubuntu
+    IdentityFile ~/.ssh/tailscale-tmp-ubuntu.pem
