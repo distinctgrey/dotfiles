@@ -1,6 +1,7 @@
 [user]
 	name = Thomas De Groof
 	email = thomas@distinctgrey.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEXu3FRwA8xBJ1Y9nnCpn1x6sj4h/8QacZWg1rkBmE54
 [pull]
 	rebase = false
 [push]
@@ -16,3 +17,11 @@
 	pick = cherry-pick
 [core]
 	editor = code --wait
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+[commit]
+	gpgsign = true
+
