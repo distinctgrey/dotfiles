@@ -1,6 +1,6 @@
 [data]
-  email = "{{ .email | default "thomas@distinctgrey.com" }}"
-  name  = "{{ .name  | default "Thomas De Groof" }}"
+  email = "{{ (get . "email") | default (promptString "email" "Email address") }}"
+  name  = "{{ (get . "name")  | default (promptString "name" "Full name") }}"
 
 [git]
   autoCommit = true
