@@ -76,3 +76,9 @@ Check drift:
 chezmoi status
 chezmoi diff
 ```
+
+## TODO
+
+- Add a scrip to sync from Brewfile to the packages.yaml file in chezmoi
+- Clean up README
+- Find a way to sync application settings (e.g. Raycast)
