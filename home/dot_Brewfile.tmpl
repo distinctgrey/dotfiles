@@ -1,11 +1,11 @@
-{{- range .packages.brew.taps }}
+{{- range (.brew.taps | default (list)) }}
 tap "{{ . }}"
 {{- end }}
 
-{{- range .packages.brew.formulae }}
+{{- range (.brew.formulae | default (list)) }}
 brew "{{ . }}"
 {{- end }}
 
-{{- range .packages.brew.casks }}
+{{- range (.brew.casks | default (list)) }}
 cask "{{ . }}"
 {{- end }}
