@@ -18,7 +18,7 @@ brew install brew-file
 # Install everything from chezmoi-rendered Brewfile
 BREWFILE="$HOME/.Brewfile"
 if [ ! -f "$BREWFILE" ]; then
-  echo "ERROR: $BREWFILE not found. Chezmoi should have created it."
+  echo "ERROR: $BREWFILE not found. Did chezmoi render dot_Brewfile?"
   exit 1
 fi
 
