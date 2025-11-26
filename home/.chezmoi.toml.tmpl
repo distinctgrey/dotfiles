@@ -1,0 +1,10 @@
+[data]
+  email = "{{ .email | default "thomas@distinctgrey.com" }}"
+  name  = "{{ .name  | default "Thomas De Groof" }}"
+
+[git]
+  autoCommit = true
+  autoPush = true
+
+[diff]
+  pager = "delta"

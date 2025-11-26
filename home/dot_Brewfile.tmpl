@@ -1,0 +1,11 @@
+{{- range .packages.brew.taps }}
+tap "{{ . }}"
+{{- end }}
+
+{{- range .packages.brew.formulae }}
+brew "{{ . }}"
+{{- end }}
+
+{{- range .packages.brew.casks }}
+cask "{{ . }}"
+{{- end }}

@@ -1,0 +1,32 @@
+[user]
+  name = {{ .name | quote }}
+  email = {{ .email | quote }}
+
+[init]
+  defaultBranch = main
+
+[core]
+  editor = code --wait
+
+[pull]
+  rebase = false
+
+[push]
+	default = current
+	autoSetupRemote = true
+	followTags = true
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
+
+[alias]
+  co = !git add -A && git commit -m
+  logs = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  pick = cherry-pick
+  st = status -sb

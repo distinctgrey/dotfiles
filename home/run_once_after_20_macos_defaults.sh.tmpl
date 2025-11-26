@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+apply_default() {
+  local domain="$1" key="$2" type="$3" value="$4"
+  echo "defaults write $domain $key -$type $value"
+  defaults write "$domain" "$key" "-$type" "$value"
+}
+
+{{- range .macos.defaults }}
+apply_default "{{ .domain }}" "{{ .key }}" "{{ .type }}" "{{ .value }}"
+{{- end }}
+
+{{- range .macos.kill }}
+echo "Restarting {{ . }}..."
+killall "{{ . }}" >/dev/null 2>&1 || true
+{{- end }}
+
+echo "macOS defaults applied."
