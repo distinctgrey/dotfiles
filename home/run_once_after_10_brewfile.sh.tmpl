@@ -15,10 +15,17 @@ brew update
 brew tap rcmdnk/file
 brew install brew-file
 
-# Install everything from chezmoi-rendered Brewfile
+# Install everything from chezmoi-rendered Brewfile.
+# If missing (e.g., first run edge case), initialize from data.
 BREWFILE="$HOME/.Brewfile"
+
 if [ ! -f "$BREWFILE" ]; then
-  echo "ERROR: $BREWFILE not found. Did chezmoi render dot_Brewfile?"
+  echo "Brewfile missing; rendering with chezmoi..."
+  chezmoi apply "$BREWFILE"
+fi
+
+if [ ! -f "$BREWFILE" ]; then
+  echo "ERROR: Brewfile still missing; aborting."
   exit 1
 fi
 

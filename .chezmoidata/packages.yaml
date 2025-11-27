@@ -13,6 +13,7 @@ brew:
         - curl
         - eza
         - git
+        - git-delta
         - localias
         - phrase-cli
         - tailscale
