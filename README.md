@@ -67,7 +67,7 @@ With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfil
 Run diagnostics:
 
 ```bash
-~/.local/share/chezmoi/scripts/doctor.sh
+~/home/bin/doctor.sh
 ```
 
 Check drift:
