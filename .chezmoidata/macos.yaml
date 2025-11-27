@@ -1,19 +1,20 @@
-defaults:
-    - domain: NSGlobalDomain
-      key: AppleShowAllExtensions
-      type: bool
-      value: true
+macos:
+    defaults:
+        - domain: NSGlobalDomain
+          key: AppleShowAllExtensions
+          type: bool
+          value: true
 
-    - domain: com.apple.finder
-      key: ShowPathbar
-      type: bool
-      value: true
+        - domain: com.apple.finder
+          key: ShowPathbar
+          type: bool
+          value: true
 
-    - domain: com.apple.dock
-      key: autohide
-      type: bool
-      value: true
+        - domain: com.apple.dock
+          key: autohide
+          type: bool
+          value: true
 
-kill:
-    - Finder
-    - Dock
+    kill:
+        - Finder
+        - Dock
