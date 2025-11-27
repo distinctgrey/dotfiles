@@ -1,0 +1,55 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "auto_indent_on_paste": false,
+  "hard_tabs": false,
+  "auto_indent": true,
+  "tab_size": 4,
+  "agent": {
+    "default_profile": "ask",
+    "always_allow_tool_actions": true,
+    "model_parameters": [],
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-sonnet-4"
+    }
+  },
+  "telemetry": {
+    "metrics": false,
+    "diagnostics": false
+  },
+  "ui_font_size": 15,
+  "buffer_font_size": 13,
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
+  "icon_theme": "Colored Zed Icons Theme Dark",
+  "terminal": {
+    "font_size": 12,
+    "font_family": "FiraCode Nerd Font",
+    "env": {
+      "GIT_EDITOR": "zed --wait"
+    }
+  },
+  "project_panel": {
+    "entry_spacing": "standard",
+    "auto_fold_dirs": false
+  },
+  "collaboration_panel": {
+    "button": false
+  },
+  "autosave": "on_focus_change",
+  "file_types": {
+    "Git Attributes": ["{git,.git,.git/info}/attributes"],
+    "Git Config": ["{git,.git/modules,.git/modules/*}/config"],
+    "Git Ignore": ["{git,.git}/ignore", ".git/info/exclude"]
+  }
+}

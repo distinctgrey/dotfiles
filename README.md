@@ -6,13 +6,14 @@ This repo manages my macOS setup using:
 - **homebrew-file + brew-wrap** to keep a Brewfile in sync with installs
 - **1Password** for secrets and SSH keys (via 1Password SSH Agent)
 
-## Prereqs (manual steps)
+## Prerequisites (manual steps)
 1. Sign in to the App Store if you use any App Store apps.
 2. Install / sign in to **1Password** (or let Brewfile install it, then sign in).
 3. In 1Password:
    - Enable **Settings → Developer → SSH Agent**.
    - Enable **Settings → Developer → Use 1Password as SSH agent**.
    - Make sure your SSH keys are stored in 1Password.
+
 
 ## Install on a new Mac
 
@@ -39,28 +40,6 @@ chezmoi update
 ```
 This pulls the repo and reapplies changes.
 
-## Add a new dotfile
-
-```bash
-chezmoi add ~/.somefile
-chezmoi apply
-```
-
-Changes are automatically committed and pushed to the repo.
-
-## Manage Homebrew packages
-
-Brewfile is rendered by chezmoi from .chezmoidata/packages.yaml.
-
-- Edit packages: change .chezmoidata/packages.yaml
-- Re-render + install:
-
-```bash
-chezmoi apply
-brew file install --file ~/.Brewfile
-```
-
-With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfile automatically. Commit those changes back into this repo by copying the updated entries into .chezmoidata/packages.yaml.
 
 ## Troubleshooting
 
@@ -76,6 +55,42 @@ Check drift:
 chezmoi status
 chezmoi diff
 ```
+
+
+## Making changes
+
+### macOS settings
+
+If you want to change macOS settings, edit .chezmoidata/macos.yaml and then run:
+
+```bash
+chezmoi state reset   # answer 'y'
+chezmoi apply -v
+```
+
+### Adding a new dotfile
+
+```bash
+chezmoi add ~/.somefile
+chezmoi apply
+```
+
+Changes are automatically committed and pushed to the repo.
+
+### Manage Homebrew packages
+
+Brewfile is rendered by chezmoi from .chezmoidata/packages.yaml.
+
+- Edit packages: change .chezmoidata/packages.yaml
+- Re-render + install:
+
+```bash
+chezmoi apply
+brew file install --file ~/.Brewfile
+```
+
+With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfile automatically. Commit those changes back into this repo by copying the updated entries into .chezmoidata/packages.yaml.
+
 
 ## TODO
 

@@ -15,6 +15,151 @@ macos:
           type: bool
           value: true
 
+        # Keyboard: Key repeat rate = Fast (GUI max)
+        - domain: NSGlobalDomain
+          key: KeyRepeat
+          type: int
+          value: 2
+
+        # Keyboard: Delay until repeat = Short (GUI max)
+        - domain: NSGlobalDomain
+          key: InitialKeyRepeat
+          type: int
+          value: 15
+
+        ######################################################################
+        # Trackpad: Point & Click
+        ######################################################################
+
+        # Tracking speed (cursor speed). Slider near Fast.
+        # Higher = faster. Typical GUI range ~0..3.
+        - domain: NSGlobalDomain
+          key: com.apple.trackpad.scaling
+          type: float
+          value: 2.5
+
+        # Tap to click = ON
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: Clicking
+          type: bool
+          value: true
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: Clicking
+          type: bool
+          value: true
+        # Required for the behavior to actually take effect on some macOS versions
+        - domain: NSGlobalDomain
+          key: com.apple.mouse.tapBehavior
+          type: int
+          value: 1
+        - domain: NSGlobalDomain
+          key: com.apple.trackpad.tapBehavior
+          type: int
+          value: 1
+
+        # Secondary click = "Click or Tap with Two Fingers"
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadRightClick
+          type: bool
+          value: true
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadRightClick
+          type: bool
+          value: true
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadCornerSecondaryClick
+          type: int
+          value: 0
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadCornerSecondaryClick
+          type: int
+          value: 0
+
+        # Force Click and haptic feedback = OFF
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: ForceSuppressed
+          type: bool
+          value: true
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: ForceSuppressed
+          type: bool
+          value: true
+
+        # Look up & data detectors (three-finger tap) = OFF
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadThreeFingerTapGesture
+          type: int
+          value: 0
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadThreeFingerTapGesture
+          type: int
+          value: 0
+
+        ######################################################################
+        # Trackpad: Scroll & Zoom
+        ######################################################################
+
+        # Natural scrolling = ON
+        - domain: NSGlobalDomain
+          key: com.apple.swipescrolldirection
+          type: bool
+          value: true
+
+        # Zoom in or out (pinch) = ON
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadPinch
+          type: bool
+          value: true
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadPinch
+          type: bool
+          value: true
+
+        # Smart zoom (two-finger double tap) = ON
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadTwoFingerDoubleTapGesture
+          type: int
+          value: 1
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadTwoFingerDoubleTapGesture
+          type: int
+          value: 1
+
+        # Rotate = ON
+        - domain: com.apple.AppleMultitouchTrackpad
+          key: TrackpadRotate
+          type: bool
+          value: true
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadRotate
+          type: bool
+          value: true
+
+        ######################################################################
+        # Trackpad: More Gestures (the safe/stable ones)
+        ######################################################################
+
+        # Swipe between pages = enabled (the "two-finger" option in UI).
+        - domain: NSGlobalDomain
+          key: AppleEnableSwipeNavigateWithScrolls
+          type: bool
+          value: true
+
+        # Mission Control / App Exposé / Swipe between full-screen apps
+        # These dropdown modes are stored as integer gesture selectors and
+        # can vary by macOS version; leaving them at defaults prevents breakage.
+
     kill:
         - Finder
         - Dock
+
+    # The following are NOT reliably scriptable with `defaults write`.
+    # They are per-display, model-specific, and stored in display/WindowServer prefs.
+    # Do these manually on each Mac after bootstrap:
+    manual_steps:
+    displays_highest_resolution:
+        path: "System Settings → Displays"
+        action: "Set Scaled to Highest Resolution / More Space (as desired)."
+    disable_auto_brightness:
+        path: "System Settings → Displays"
+        action: "Turn off “Automatically adjust brightness” (if present)."
