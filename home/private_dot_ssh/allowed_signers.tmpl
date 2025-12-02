@@ -1,0 +1,5 @@
+# SSH allowed signers file for Git commit signature verification
+# This file lists the SSH public keys that are allowed to sign commits
+# Format: email-address ssh-key-type public-key [comment]
+
+{{ .email }} {{ output "ssh-add" "-L" | regexFind "ssh-ed25519 [A-Za-z0-9+/]+" }}
