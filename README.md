@@ -26,12 +26,12 @@ Run:
 ```
 
 This will:
-	1.	Install chezmoi if missing
-	2.	Clone this repo into chezmoi
-	3.	Apply dotfiles
-	4.	Install Homebrew if missing
-	5.	Install brew-file and all packages from ~/.Brewfile
-	6.	Apply macOS defaults
+1.	Install chezmoi if missing
+2.	Clone this repo into chezmoi
+3.	Apply dotfiles
+4.	Install Homebrew if missing
+5.	Install brew-file and all packages from ~/.Brewfile
+6.	Apply macOS defaults
 
 After install, restart your terminal (zsh loads brew-wrap on startup).
 
@@ -103,9 +103,3 @@ brew file install --file ~/.Brewfile
 ```
 
 With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfile automatically. Commit those changes back into this repo by copying the updated entries into .chezmoidata/packages.yaml.
-
-
-## TODO
-
-- Add a script to sync from Brewfile to the packages.yaml file in chezmoi
-- Clean up README (especially order of installing 1PW etc)
