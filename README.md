@@ -46,28 +46,13 @@ After install, restart your terminal (zsh loads brew-wrap on startup).
 - Warp: enable Settings Sync (Beta) in Warp settings.
 - Zed: settings are in ~/.config/zed/*.json and are managed by chezmoi.
 
+
 ## Update existing Mac
 
 ```bash
 chezmoi update
 ```
 This pulls the repo and reapplies changes.
-
-
-## Troubleshooting
-
-Run diagnostics:
-
-```bash
-~/home/bin/doctor.sh
-```
-
-Check drift:
-
-```bash
-chezmoi status
-chezmoi diff
-```
 
 
 ## Making changes
@@ -92,14 +77,27 @@ Changes are automatically committed and pushed to the repo.
 
 ### Manage Homebrew packages
 
-Brewfile is rendered by chezmoi from .chezmoidata/packages.yaml.
+Brewfile is rendered by chezmoi from `.chezmoidata/packages.yaml`.
+With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfile automatically.
 
-- Edit packages: change .chezmoidata/packages.yaml
-- Re-render + install:
+Commit those changes back into this repo by running:
 
 ```bash
-chezmoi apply
-brew file install --file ~/.Brewfile
+chezmoi-sync-brewfile
 ```
 
-With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfile automatically. Commit those changes back into this repo by copying the updated entries into .chezmoidata/packages.yaml.
+
+## Troubleshooting
+
+Run diagnostics:
+
+```bash
+chezmoi-doctor
+```
+
+Check drift:
+
+```bash
+chezmoi status
+chezmoi diff
+```
