@@ -1,11 +1,11 @@
-{{- range (.macos.brew.taps | default list) }}
+{{- range (.brew.taps | default list) }}
 tap "{{ . }}"
 {{- end }}
 
-{{- range (.macos.brew.formulae | default list) }}
+{{- range (.brew.formulae | default list) }}
 brew "{{ . }}"
 {{- end }}
 
-{{- range (.macos.brew.casks | default list) }}
+{{- range (.brew.casks | default list) }}
 cask "{{ . }}"
 {{- end }}
