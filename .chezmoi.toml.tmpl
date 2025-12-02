@@ -1,3 +1,5 @@
+sourceDir = "{{ .chezmoi.sourceDir }}/home"
+
 [data]
   email = "{{ (get . "email") | default (promptString "email" "Email address") }}"
   name  = "{{ (get . "name")  | default (promptString "name" "Full name") }}"

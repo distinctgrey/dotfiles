@@ -15,12 +15,14 @@ This repo manages my macOS setup using:
    - Make sure your SSH keys are stored in 1Password.
 
 
-## Install on a new Mac
+## Installing a new Mac
+
+### Bootstrap
 
 Run:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/distinctgrey/dotfiles/main/scripts/bootstrap.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/distinctgrey/dotfiles/main/bootstrap.sh)"
 ```
 
 This will:
@@ -32,6 +34,17 @@ This will:
 	6.	Apply macOS defaults
 
 After install, restart your terminal (zsh loads brew-wrap on startup).
+
+### Manual post-install steps
+
+- Arc: enable Arc Sync in Arc settings.
+- Brave: create/join a Sync chain; keep 1Password as password source.
+- Chrome: turn on Google Sync.
+- Notion: sign in; cloud sync is automatic.
+- Raycast: export Settings & Data on old Mac, import `.rayconfig` on new Mac.
+- VS Code: enable Settings Sync (Command Palette → “Settings Sync: Turn On”).
+- Warp: enable Settings Sync (Beta) in Warp settings.
+- Zed: settings are in ~/.config/zed/*.json and are managed by chezmoi.
 
 ## Update existing Mac
 
@@ -94,6 +107,5 @@ With brew-wrap enabled in .zshrc, normal Homebrew usage will update your Brewfil
 
 ## TODO
 
-- Add a scrip to sync from Brewfile to the packages.yaml file in chezmoi
-- Clean up README
-- Find a way to sync application settings (e.g. Raycast)
+- Add a script to sync from Brewfile to the packages.yaml file in chezmoi
+- Clean up README (especially order of installing 1PW etc)

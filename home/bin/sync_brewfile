@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# sync_brewfile
+# Default: dry-run (prints diff). To write, pass --write.
+
+BREWFILE="$HOME/.Brewfile"
+
+usage() {
+  cat <<'EOF'
+Usage: sync_brewfile [--write]
+
+Default behavior is DRY-RUN:
+  - parses ~/.Brewfile
+  - generates .chezmoidata/packages.yaml content
+  - shows a unified diff vs current packages.yaml
+  - exits without writing
+
+To actually write:
+  sync_brewfile --write
+EOF
+}
+
+WRITE=false
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+if [[ "${1:-}" == "--write" ]]; then
+  WRITE=true
+fi
+
+if [[ ! -f "$BREWFILE" ]]; then
+  echo "ERROR: Brewfile not found at $BREWFILE" >&2
+  exit 1
+fi
+
+if ! command -v chezmoi >/dev/null 2>&1; then
+  echo "ERROR: chezmoi is required to locate the source dir." >&2
+  exit 1
+fi
+
+# Determine chezmoi source dir
+SOURCE_DIR="$(chezmoi dump-config \
+  | sed -n 's/.*"sourceDir":[[:space:]]*"\([^"]*\)".*/\1/p' \
+  | head -n1)"
+
+if [[ -z "$SOURCE_DIR" || ! -d "$SOURCE_DIR" ]]; then
+  echo "ERROR: Could not determine chezmoi sourceDir." >&2
+  exit 1
+fi
+
+PACKAGES_YAML="$SOURCE_DIR/.chezmoidata/packages.yaml"
+TMP_OUT="$(mktemp -t packages.yaml.XXXXXX)"
+
+# Parse Brewfile into arrays (alphabetized & unique)
+mapfile -t taps < <(grep -E '^[[:space:]]*tap[[:space:]]+"' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*tap[[:space:]]+"([^"]+)".*/\1/' \
+  | sort -u)
+
+mapfile -t formulae < <(grep -E '^[[:space:]]*brew[[:space:]]+"' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*brew[[:space:]]+"([^"]+)".*/\1/' \
+  | sort -u)
+
+mapfile -t casks < <(grep -E '^[[:space:]]*cask[[:space:]]+"' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*cask[[:space:]]+"([^"]+)".*/\1/' \
+  | sort -u)
+
+render_list() {
+  local -n arr="$1"
+  local indent="$2"
+  if (( ${#arr[@]} == 0 )); then
+    echo "${indent}[]"
+  else
+    for item in "${arr[@]}"; do
+      echo "${indent}- ${item}"
+    done
+  fi
+}
+
+{
+  echo "# Generated from ${BREWFILE} on $(date -Iseconds)"
+  echo "brew:"
+  echo "  taps:"
+  render_list taps "    "
+  echo "  formulae:"
+  render_list formulae "    "
+  echo "  casks:"
+  render_list casks "    "
+} > "$TMP_OUT"
+
+# Show diff (dry-run always)
+echo "=== DRY RUN: diff vs $PACKAGES_YAML ==="
+if [[ -f "$PACKAGES_YAML" ]]; then
+  diff -u "$PACKAGES_YAML" "$TMP_OUT" || true
+else
+  echo "(packages.yaml does not exist yet; showing generated content)"
+  cat "$TMP_OUT"
+fi
+echo "=== END DRY RUN ==="
+echo "Taps: ${#taps[@]}, Formulae: ${#formulae[@]}, Casks: ${#casks[@]}"
+
+if ! $WRITE; then
+  rm -f "$TMP_OUT"
+  exit 0
+fi
+
+# Write mode
+mkdir -p "$(dirname "$PACKAGES_YAML")"
+
+if [[ -f "$PACKAGES_YAML" ]]; then
+  backup="${PACKAGES_YAML}.bak"
+  cp -f "$PACKAGES_YAML" "$backup"
+  echo "Backed up existing packages.yaml to $backup"
+fi
+
+mv -f "$TMP_OUT" "$PACKAGES_YAML"
+echo "Wrote $PACKAGES_YAML"
