@@ -162,4 +162,57 @@ macos:
         action: "Set Scaled to Highest Resolution / More Space (as desired)."
     disable_auto_brightness:
         path: "System Settings → Displays"
-        action: "Turn off “Automatically adjust brightness” (if present)."
+        action: 'Turn off "Automatically adjust brightness" (if present).'
+
+brew:
+    taps:
+        - homebrew/core
+        - homebrew/cask
+        - peterldowns/tap
+        - rcmdnk/file
+
+    formulae:
+        - awscli
+        - azure-cli
+        - brew-file
+        - chezmoi
+        - curl
+        - eza
+        - git
+        - git-delta
+        - localias
+        - phrase-cli
+        - tailscale
+        - wget
+
+    casks:
+        - 1password
+        - arc
+        - beekeeper-studio
+        - brave-browser
+        - chatgpt
+        - dropbox
+        - figma
+        - font-fira-code-nerd-font
+        - framer
+        - google-chrome
+        - google-drive
+        - iina
+        - microsoft-azure-storage-explorer
+        - microsoft-edge
+        - microsoft-office
+        - microsoft-office-businesspro
+        - modern-csv
+        - nordvpn
+        - notion
+        - podman-desktop
+        - postman
+        - raycast
+        - rectangle
+        - responsively
+        - sequel-ace
+        - slack
+        - tailscale-app
+        - visual-studio-code
+        - warp
+        - zed

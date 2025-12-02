@@ -29,6 +29,9 @@ fi
 echo "🚀 Initializing chezmoi with dotfiles..."
 chezmoi init "$DOTFILES_REPO"
 
+echo "🔧 Regenerating config file..."
+chezmoi init
+
 echo "📋 Applying dotfiles..."
 chezmoi apply -v
 
