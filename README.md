@@ -50,6 +50,9 @@ chezmoi-finalize-ssh
 
 ### Manual post-install steps
 
+
+Application settings:
+
 - Arc: enable Arc Sync in Arc settings.
 - Brave: create/join a Sync chain; keep 1Password as password source.
 - Chrome: turn on Google Sync.
@@ -58,6 +61,7 @@ chezmoi-finalize-ssh
 - VS Code: enable Settings Sync (Command Palette → “Settings Sync: Turn On”).
 - Warp: enable Settings Sync (Beta) in Warp settings.
 - Zed: settings are in ~/.config/zed/*.json and are managed by chezmoi.
+- Achico: install manually via https://github.com/nuance-dev/achico
 
 Activate Tailscale:
 
