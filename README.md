@@ -28,6 +28,7 @@ xcode-select --install
 Then run the bootstrap script:
 
 ```bash
+sudo -v
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/distinctgrey/dotfiles/main/bootstrap.sh)"
 ```
 
@@ -35,11 +36,17 @@ This will:
 1.	Install chezmoi if missing
 2.	Clone this repo into chezmoi
 3.	Apply dotfiles
-4.	Install Homebrew if missing
+4.	Install Homebrew
 5.	Install brew-file and all packages from ~/.Brewfile
 6.	Apply some macOS defaults
 
 After install, restart your terminal (zsh loads brew-wrap on startup).
+
+Then configure 1Password and to finalize run:
+
+```bash
+chezmoi-finalize-ssh
+```
 
 ### Manual post-install steps
 
