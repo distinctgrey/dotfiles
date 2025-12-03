@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# sync_brewfile
+# chezmoi-sync-brewfile
+# Syncs ~/.Brewfile to .chezmoidata/macos.yaml brew section
 # Default: dry-run (prints diff). To write, pass --write.
 
 BREWFILE="$HOME/.Brewfile"
 
 usage() {
   cat <<'EOF'
-Usage: sync_brewfile [--write]
+Usage: chezmoi-sync-brewfile [--write]
 
 Default behavior is DRY-RUN:
   - parses ~/.Brewfile
-  - generates .chezmoidata/packages.yaml content
-  - shows a unified diff vs current packages.yaml
+  - generates brew section for .chezmoidata/macos.yaml
+  - shows a unified diff vs current macos.yaml brew section
   - exits without writing
 
 To actually write:
-  sync_brewfile --write
+  chezmoi-sync-brewfile --write
 EOF
 }
 
@@ -50,8 +51,9 @@ if [[ -z "$SOURCE_DIR" || ! -d "$SOURCE_DIR" ]]; then
   exit 1
 fi
 
-PACKAGES_YAML="$SOURCE_DIR/.chezmoidata/packages.yaml"
-TMP_OUT="$(mktemp -t packages.yaml.XXXXXX)"
+MACOS_YAML="$SOURCE_DIR/.chezmoidata/macos.yaml"
+TMP_BREW_SECTION="$(mktemp -t brew-section.XXXXXX)"
+TMP_MACOS_YAML="$(mktemp -t macos.yaml.XXXXXX)"
 
 # Parse Brewfile into temporary files (alphabetized & unique)
 TAPS_FILE="$(mktemp)"
@@ -83,23 +85,38 @@ render_list() {
 }
 
 {
-  echo "# Generated from ${BREWFILE} on $(date -Iseconds)"
   echo "brew:"
-  echo "  taps:"
-  render_list "$TAPS_FILE" "    "
-  echo "  formulae:"
-  render_list "$FORMULAE_FILE" "    "
-  echo "  casks:"
-  render_list "$CASKS_FILE" "    "
-} > "$TMP_OUT"
+  echo "    taps:"
+  render_list "$TAPS_FILE" "        "
+  echo ""
+  echo "    formulae:"
+  render_list "$FORMULAE_FILE" "        "
+  echo ""
+  echo "    casks:"
+  render_list "$CASKS_FILE" "        "
+} > "$TMP_BREW_SECTION"
+
+# Create new macos.yaml with updated brew section
+if [[ -f "$MACOS_YAML" ]]; then
+  # Extract everything before the brew section, preserving structure
+  awk '/^brew:/{exit} {print}' "$MACOS_YAML" > "$TMP_MACOS_YAML"
+  echo "" >> "$TMP_MACOS_YAML"
+else
+  echo "macos:" > "$TMP_MACOS_YAML"
+  echo "    # Configuration will be added here" >> "$TMP_MACOS_YAML"
+  echo "" >> "$TMP_MACOS_YAML"
+fi
+
+# Add the new brew section
+cat "$TMP_BREW_SECTION" >> "$TMP_MACOS_YAML"
 
 # Show diff (dry-run always)
-echo "=== DRY RUN: diff vs $PACKAGES_YAML ==="
-if [[ -f "$PACKAGES_YAML" ]]; then
-  diff -u "$PACKAGES_YAML" "$TMP_OUT" || true
+echo "=== DRY RUN: diff vs $MACOS_YAML ==="
+if [[ -f "$MACOS_YAML" ]]; then
+  diff -u "$MACOS_YAML" "$TMP_MACOS_YAML" || true
 else
-  echo "(packages.yaml does not exist yet; showing generated content)"
-  cat "$TMP_OUT"
+  echo "(macos.yaml does not exist yet; showing generated content)"
+  cat "$TMP_MACOS_YAML"
 fi
 echo "=== END DRY RUN ==="
 TAPS_COUNT=$(wc -l < "$TAPS_FILE" | tr -d ' ')
@@ -108,21 +125,21 @@ CASKS_COUNT=$(wc -l < "$CASKS_FILE" | tr -d ' ')
 echo "Taps: $TAPS_COUNT, Formulae: $FORMULAE_COUNT, Casks: $CASKS_COUNT"
 
 if ! $WRITE; then
-  rm -f "$TMP_OUT" "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
+  rm -f "$TMP_BREW_SECTION" "$TMP_MACOS_YAML" "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
   exit 0
 fi
 
 # Write mode
-mkdir -p "$(dirname "$PACKAGES_YAML")"
+mkdir -p "$(dirname "$MACOS_YAML")"
 
-if [[ -f "$PACKAGES_YAML" ]]; then
-  backup="${PACKAGES_YAML}.bak"
-  cp -f "$PACKAGES_YAML" "$backup"
-  echo "Backed up existing packages.yaml to $backup"
+if [[ -f "$MACOS_YAML" ]]; then
+  backup="${MACOS_YAML}.bak"
+  cp -f "$MACOS_YAML" "$backup"
+  echo "Backed up existing macos.yaml to $backup"
 fi
 
-mv -f "$TMP_OUT" "$PACKAGES_YAML"
-echo "Wrote $PACKAGES_YAML"
+mv -f "$TMP_MACOS_YAML" "$MACOS_YAML"
+echo "Wrote $MACOS_YAML"
 
 # Clean up temporary files
-rm -f "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
+rm -f "$TMP_BREW_SECTION" "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
