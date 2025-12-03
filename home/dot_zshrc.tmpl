@@ -11,6 +11,10 @@ export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/
 # https://homebrew-file.readthedocs.io/en/latest/brew-wrap.html
 if [[ -f "$(brew --prefix)/etc/brew-wrap" ]]; then
   source "$(brew --prefix)/etc/brew-wrap"
+
+  _post_brewfile_update () {
+    echo "Brewfile was updated! Run chezmoi-sync-brewfile to update your dotfiles."
+  }
 fi
 
 eval "$(mise activate zsh)"
