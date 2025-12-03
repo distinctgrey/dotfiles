@@ -7,8 +7,10 @@ export PATH="$HOME/bin:$PATH"
 # 1Password SSH Agent
 export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
-# brew-wrap (from homebrew-file)
-# https://homebrew-file.readthedocs.io/en/latest/brew-wrap.html
+# Set Brewfile location for brew-file/brew-wrap
+export HOMEBREW_BREWFILE="$HOME/.Brewfile"
+
+# Wrap homebrew in brew-wrap (from homebrew-file)
 if [[ -f "$(brew --prefix)/etc/brew-wrap" ]]; then
   source "$(brew --prefix)/etc/brew-wrap"
 
