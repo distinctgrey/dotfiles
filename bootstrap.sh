@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DOTFILES_REPO="git@github.com:distinctgrey/dotfiles.git"
+DOTFILES_REPO="https://github.com/distinctgrey/dotfiles.git"
 
 # Complete chezmoi reset - remove everything before starting fresh
 echo "🧹 Cleaning up existing chezmoi setup..."
@@ -34,5 +34,9 @@ chezmoi init
 
 echo "📋 Applying dotfiles..."
 chezmoi apply -v
+
+echo "🔄 Switching to SSH remote for future operations..."
+cd ~/.local/share/chezmoi
+git remote set-url origin "git@github.com:distinctgrey/dotfiles.git"
 
 echo "✨ Bootstrap complete!"
