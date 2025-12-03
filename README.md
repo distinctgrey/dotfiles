@@ -19,7 +19,13 @@ This repo manages my macOS setup using:
 
 ### Bootstrap
 
-Run:
+Install XCode Command Line Tools:
+
+```bash
+xcode-select --install
+```
+
+Then run the bootstrap script:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/distinctgrey/dotfiles/main/bootstrap.sh)"
@@ -31,7 +37,7 @@ This will:
 3.	Apply dotfiles
 4.	Install Homebrew if missing
 5.	Install brew-file and all packages from ~/.Brewfile
-6.	Apply macOS defaults
+6.	Apply some macOS defaults
 
 After install, restart your terminal (zsh loads brew-wrap on startup).
 
