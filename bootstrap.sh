@@ -40,3 +40,12 @@ cd ~/.local/share/chezmoi
 git remote set-url origin "git@github.com:distinctgrey/dotfiles.git"
 
 echo "✨ Bootstrap complete!"
+echo ""
+echo "🔐 Next: Complete 1Password SSH setup"
+echo "   After installing 1Password and configuring the SSH agent:"
+echo "   Run: chezmoi-finalize-ssh"
+echo ""
+echo "   This will:"
+echo "   - Verify 1Password SSH agent is working"
+echo "   - Update SSH allowed signers file"
+echo "   - Test Git commit signing"

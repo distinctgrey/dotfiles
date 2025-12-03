@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# chezmoi-finalize-ssh
+# Post-bootstrap script to complete 1Password SSH setup
+
+echo "🔐 Finalizing 1Password SSH setup..."
+
+# Check if 1Password is installed
+if ! command -v op >/dev/null 2>&1; then
+    echo "❌ 1Password CLI not found. Please install 1Password first."
+    echo "   You can install it with: brew install --cask 1password 1password-cli"
+    exit 1
+fi
+
+# Check if 1Password SSH agent socket exists
+SSH_AGENT_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+if [ ! -S "$SSH_AGENT_SOCK" ]; then
+    echo "❌ 1Password SSH agent not found."
+    echo "   Please enable the SSH agent in 1Password:"
+    echo "   1. Open 1Password app"
+    echo "   2. Go to Settings → Developer"
+    echo "   3. Enable 'Use the SSH agent'"
+    echo "   4. Enable 'Display key names when signing Git commits'"
+    exit 1
+fi
+
+# Test SSH agent
+echo "🧪 Testing 1Password SSH agent..."
+export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
+
+if ! SSH_KEYS=$(ssh-add -L 2>/dev/null); then
+    echo "❌ SSH agent has no identities loaded."
+    echo "   Please add your SSH key to 1Password:"
+    echo "   1. Open 1Password app"
+    echo "   2. Add your SSH private key to a secure note or SSH key item"
+    echo "   3. Make sure the key is configured for SSH agent use"
+    exit 1
+fi
+
+echo "✅ SSH agent is working!"
+
+# Check for Ed25519 key (recommended for signing)
+ED25519_KEY=$(echo "$SSH_KEYS" | grep "ssh-ed25519" || true)
+if [ -z "$ED25519_KEY" ]; then
+    echo "⚠️  No Ed25519 SSH key found. RSA keys will work but Ed25519 is recommended."
+else
+    echo "✅ Ed25519 SSH key found for signing"
+fi
+
+# Update allowed_signers file with actual SSH keys
+echo "🔄 Updating SSH allowed signers file..."
+chezmoi apply ~/.ssh/allowed_signers
+
+# Test Git signing configuration
+echo "🧪 Testing Git SSH signing..."
+if git config --global commit.gpgsign | grep -q "true"; then
+    echo "✅ Git commit signing is enabled"
+else
+    echo "⚠️  Git commit signing is disabled"
+fi
+
+# Check if allowedSignersFile is configured
+SIGNERS_FILE=$(git config --global gpg.ssh.allowedSignersFile || echo "")
+if [ -n "$SIGNERS_FILE" ] && [ -f "$HOME/.ssh/allowed_signers" ]; then
+    echo "✅ SSH allowed signers file is configured"
+else
+    echo "❌ SSH allowed signers file not properly configured"
+    exit 1
+fi
+
+# Test signature verification on a dummy commit (if in a git repo)
+if git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "🧪 Testing signature verification..."
+    if git log --show-signature -1 >/dev/null 2>&1; then
+        echo "✅ Signature verification is working"
+    else
+        echo "⚠️  Signature verification may need additional setup"
+    fi
+fi
+
+echo ""
+echo "🎉 1Password SSH setup complete!"
+echo ""
+echo "Next steps:"
+echo "1. Test SSH signing with a commit: git commit -m 'test'"
+echo "2. Verify signature: git log --show-signature -1"
+echo "3. Make sure your shell has the SSH_AUTH_SOCK set:"
+echo "   export SSH_AUTH_SOCK=\"$SSH_AGENT_SOCK\""
+echo ""
+echo "Note: New terminal sessions should automatically use 1Password SSH agent"
+echo "      thanks to the configuration in your ~/.zshrc file."

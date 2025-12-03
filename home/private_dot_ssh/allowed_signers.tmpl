@@ -1,5 +1,17 @@
 # SSH allowed signers file for Git commit signature verification
-# This file lists the SSH public keys that are allowed to sign commits
+# This file lists the SSH public keys that are allowed to signed commits
 # Format: email-address ssh-key-type public-key [comment]
 
-{{ .email }} {{ output "ssh-add" "-L" | regexFind "ssh-ed25519 [A-Za-z0-9+/]+" }}
+{{- $sshOutput := "" }}
+{{- if and (lookPath "ssh-add") (env "SSH_AUTH_SOCK") }}
+  {{- $sshOutput = (output "bash" "-c" "ssh-add -L 2>/dev/null || true") | trim }}
+{{- end }}
+
+{{- $sshKey := $sshOutput | regexFind "ssh-ed25519 [A-Za-z0-9+/]+" }}
+
+{{- if $sshKey }}
+{{ .email }} {{ $sshKey }}
+{{- else }}
+# SSH key will be populated when 1Password SSH agent is configured
+# Run: chezmoi apply ~/.ssh/allowed_signers
+{{- end }}
