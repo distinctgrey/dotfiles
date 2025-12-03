@@ -200,7 +200,6 @@ brew:
         - iina
         - microsoft-azure-storage-explorer
         - microsoft-edge
-        - microsoft-office
         - microsoft-office-businesspro
         - modern-csv
         - nordvpn

@@ -43,6 +43,19 @@ if [ ! -f "$BREWFILE" ]; then
 fi
 
 echo "📦 Installing packages from Brewfile..."
-brew file install --file "$BREWFILE"
+
+# Install with error handling for conflicts
+if ! brew file install --file "$BREWFILE"; then
+  echo "⚠️  Some packages failed to install (possibly due to conflicts)."
+  echo "   You can resolve conflicts manually by running:"
+  echo "   brew file install --file ~/.Brewfile"
+  echo "   Or install packages individually with: brew install <package-name>"
+  echo ""
+  echo "   Common conflicts:"
+  echo "   - Multiple versions of the same software"
+  echo "   - Casks that install overlapping applications"
+  echo ""
+  exit 1
+fi
 
 echo "✅ Homebrew packages installation complete!"
