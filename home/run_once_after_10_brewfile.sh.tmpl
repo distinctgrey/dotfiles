@@ -44,18 +44,50 @@ fi
 
 echo "📦 Installing packages from Brewfile..."
 
-# Install with error handling for conflicts
-if ! brew file install --file "$BREWFILE"; then
-  echo "⚠️  Some packages failed to install (possibly due to conflicts)."
-  echo "   You can resolve conflicts manually by running:"
-  echo "   brew file install --file ~/.Brewfile"
-  echo "   Or install packages individually with: brew install <package-name>"
+# Create temporary log file for detailed error tracking
+BREW_LOG=$(mktemp)
+FAILED_PACKAGES=""
+
+# Try to install with detailed logging
+if ! brew file install --file "$BREWFILE" 2>&1 | tee "$BREW_LOG"; then
   echo ""
-  echo "   Common conflicts:"
-  echo "   - Multiple versions of the same software"
-  echo "   - Casks that install overlapping applications"
+  echo "❌ Homebrew installation failed!"
+  echo ""
+
+  # Extract specific conflict information
+  if grep -q "conflicts with" "$BREW_LOG"; then
+    echo "🔍 Package conflicts detected:"
+    grep "conflicts with" "$BREW_LOG" | sed 's/^/   /'
+    echo ""
+  fi
+
+  # Extract other specific errors
+  if grep -q "already installed" "$BREW_LOG"; then
+    echo "ℹ️  Some packages were already installed:"
+    grep "already installed" "$BREW_LOG" | sed 's/^/   /'
+    echo ""
+  fi
+
+  if grep -q "No available formula" "$BREW_LOG"; then
+    echo "❓ Package not found errors:"
+    grep "No available formula" "$BREW_LOG" | sed 's/^/   /'
+    echo ""
+  fi
+
+  echo "📋 Full error log saved to: $BREW_LOG"
+  echo ""
+  echo "🛠️  To resolve:"
+  echo "   1. Check the conflicts listed above"
+  echo "   2. Edit ~/.Brewfile to remove conflicting packages"
+  echo "   3. Or install packages individually:"
+  echo "      brew install <package-name>"
+  echo "      brew install --cask <cask-name>"
+  echo "   4. Re-run: chezmoi apply"
   echo ""
   exit 1
+else
+  # Clean up log file on success
+  rm -f "$BREW_LOG"
 fi
 
 echo "✅ Homebrew packages installation complete!"

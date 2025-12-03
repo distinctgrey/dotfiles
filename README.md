@@ -59,6 +59,12 @@ chezmoi-finalize-ssh
 - Warp: enable Settings Sync (Beta) in Warp settings.
 - Zed: settings are in ~/.config/zed/*.json and are managed by chezmoi.
 
+Activate Tailscale:
+
+```bash
+brew services start tailscale
+```
+
 
 ## Update existing Mac
 

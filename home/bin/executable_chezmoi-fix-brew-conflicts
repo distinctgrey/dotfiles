@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# chezmoi-fix-brew-conflicts
+# Interactive script to diagnose and fix Brewfile package conflicts
+
+BREWFILE="$HOME/.Brewfile"
+TEMP_LOG=$(mktemp)
+
+usage() {
+  cat <<'EOF'
+Usage: chezmoi-fix-brew-conflicts [OPTIONS]
+
+Diagnose and fix Homebrew package conflicts in your Brewfile.
+
+OPTIONS:
+  --dry-run    Show what would be done without making changes
+  --auto-fix   Automatically resolve common conflicts
+  -h, --help   Show this help message
+
+EXAMPLES:
+  chezmoi-fix-brew-conflicts           # Interactive mode
+  chezmoi-fix-brew-conflicts --dry-run # Show conflicts without fixing
+  chezmoi-fix-brew-conflicts --auto-fix # Auto-resolve common conflicts
+EOF
+}
+
+DRY_RUN=false
+AUTO_FIX=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    --auto-fix)
+      AUTO_FIX=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+echo "🔍 Homebrew Conflict Detector & Fixer"
+echo "====================================="
+echo ""
+
+# Check if Brewfile exists
+if [[ ! -f "$BREWFILE" ]]; then
+  echo "❌ Brewfile not found at $BREWFILE"
+  echo "   Run: chezmoi apply ~/.Brewfile"
+  exit 1
+fi
+
+# Check if brew is installed
+if ! command -v brew >/dev/null 2>&1; then
+  echo "❌ Homebrew not installed. Run: chezmoi-setup-homebrew"
+  exit 1
+fi
+
+echo "📋 Analyzing Brewfile: $BREWFILE"
+echo ""
+
+# Try a dry-run install to detect conflicts
+echo "🧪 Testing package installation (dry-run)..."
+if brew bundle install --file="$BREWFILE" --no-lock 2>&1 | tee "$TEMP_LOG"; then
+  echo "✅ No conflicts detected! All packages should install successfully."
+  rm -f "$TEMP_LOG"
+  exit 0
+fi
+
+echo ""
+echo "❌ Conflicts or issues detected!"
+echo ""
+
+# Analyze the log for specific issues
+CONFLICTS_FOUND=false
+DUPLICATES_FOUND=false
+NOT_FOUND=false
+
+# Check for conflicts
+if grep -q "conflicts with\|already installed" "$TEMP_LOG"; then
+  CONFLICTS_FOUND=true
+  echo "🚨 Package Conflicts:"
+  echo "===================="
+  grep -E "conflicts with|already installed" "$TEMP_LOG" | while IFS= read -r line; do
+    echo "   $line"
+  done
+  echo ""
+fi
+
+# Check for missing packages
+if grep -q "No available formula\|No available cask" "$TEMP_LOG"; then
+  NOT_FOUND=true
+  echo "❓ Packages Not Found:"
+  echo "====================="
+  grep -E "No available formula|No available cask" "$TEMP_LOG" | while IFS= read -r line; do
+    echo "   $line"
+  done
+  echo ""
+fi
+
+# Look for common conflict patterns in Brewfile
+echo "🔍 Common Conflict Patterns in Brewfile:"
+echo "========================================"
+
+# Check for Microsoft Office conflicts
+if grep -q "microsoft-office" "$BREWFILE"; then
+  OFFICE_COUNT=$(grep -c "microsoft-office" "$BREWFILE" || true)
+  if [[ $OFFICE_COUNT -gt 1 ]]; then
+    DUPLICATES_FOUND=true
+    echo "   📋 Multiple Microsoft Office versions detected:"
+    grep "microsoft-office" "$BREWFILE" | sed 's/^/      /'
+    echo "      → Keep only one: microsoft-office-businesspro (recommended)"
+    echo ""
+  fi
+fi
+
+# Check for Java conflicts
+if grep -qE "java[^a-z]|openjdk" "$BREWFILE"; then
+  JAVA_PACKAGES=$(grep -E "java[^a-z]|openjdk" "$BREWFILE" || true)
+  if [[ $(echo "$JAVA_PACKAGES" | wc -l) -gt 1 ]]; then
+    DUPLICATES_FOUND=true
+    echo "   ☕ Multiple Java versions detected:"
+    echo "$JAVA_PACKAGES" | sed 's/^/      /'
+    echo "      → Consider keeping only the version you need"
+    echo ""
+  fi
+fi
+
+# Check for duplicate entries
+DUPLICATE_LINES=$(sort "$BREWFILE" | uniq -d)
+if [[ -n "$DUPLICATE_LINES" ]]; then
+  DUPLICATES_FOUND=true
+  echo "   📝 Duplicate entries found:"
+  echo "$DUPLICATE_LINES" | sed 's/^/      /'
+  echo ""
+fi
+
+if [[ "$DRY_RUN" == "true" ]]; then
+  echo "🏃 Dry run complete. Use --auto-fix to resolve automatically."
+  rm -f "$TEMP_LOG"
+  exit 0
+fi
+
+# Auto-fix mode
+if [[ "$AUTO_FIX" == "true" ]]; then
+  echo "🔧 Auto-fixing common conflicts..."
+
+  # Fix Microsoft Office duplicates
+  if grep -q "microsoft-office" "$BREWFILE"; then
+    if grep -q 'cask "microsoft-office"' "$BREWFILE" && grep -q 'cask "microsoft-office-businesspro"' "$BREWFILE"; then
+      echo "   🏢 Removing duplicate microsoft-office (keeping businesspro)"
+      sed -i.bak '/cask "microsoft-office"$/d' "$BREWFILE"
+    fi
+  fi
+
+  # Remove exact duplicates
+  if [[ -n "$DUPLICATE_LINES" ]]; then
+    echo "   📝 Removing duplicate lines"
+    sort "$BREWFILE" | uniq > "${BREWFILE}.tmp"
+    mv "${BREWFILE}.tmp" "$BREWFILE"
+  fi
+
+  echo "✅ Auto-fix complete!"
+  echo "   📋 Updated Brewfile: $BREWFILE"
+  echo "   💾 Backup saved: ${BREWFILE}.bak"
+  echo ""
+  echo "🧪 Testing fixed Brewfile..."
+  if brew bundle install --file="$BREWFILE" --no-lock; then
+    echo "✅ All conflicts resolved!"
+  else
+    echo "⚠️  Some issues remain. Manual intervention may be needed."
+  fi
+
+  rm -f "$TEMP_LOG"
+  exit 0
+fi
+
+# Interactive mode
+if [[ "$CONFLICTS_FOUND" == "true" ]] || [[ "$DUPLICATES_FOUND" == "true" ]]; then
+  echo "🛠️  Suggested Actions:"
+  echo "====================="
+  echo "1. Edit Brewfile manually: code $BREWFILE"
+  echo "2. Auto-fix common issues: $0 --auto-fix"
+  echo "3. Update from current system: chezmoi-sync-brewfile --write"
+  echo "4. Install packages individually to identify specific conflicts"
+  echo ""
+
+  read -p "Would you like to open the Brewfile for editing? (y/N): " -r
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if command -v code >/dev/null 2>&1; then
+      code "$BREWFILE"
+    elif command -v nano >/dev/null 2>&1; then
+      nano "$BREWFILE"
+    else
+      echo "No editor found. Edit manually: $BREWFILE"
+    fi
+  fi
+fi
+
+echo ""
+echo "📄 Full error log saved to: $TEMP_LOG"
+echo "🔄 After fixing conflicts, run: chezmoi apply"
+
+rm -f "$TEMP_LOG"
