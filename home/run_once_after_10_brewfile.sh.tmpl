@@ -3,9 +3,22 @@ set -euo pipefail
 
 # Install Homebrew if missing
 if ! command -v brew >/dev/null 2>&1; then
-  echo "Installing Homebrew..."
-  NONINTERACTIVE=1 /bin/bash -c \
-    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  echo "🍺 Installing Homebrew..."
+  echo "   This will require sudo access to create system directories."
+  echo "   Please enter your password when prompted."
+  echo ""
+
+  # Check if we can sudo before attempting installation
+  if ! sudo -n true 2>/dev/null; then
+    echo "⚠️  This script needs sudo access to install Homebrew."
+    echo "   Please run: sudo -v"
+    echo "   Then re-run this script."
+    exit 1
+  fi
+
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  echo "✅ Homebrew installation complete!"
 fi
 
 eval "$(/opt/homebrew/bin/brew shellenv)" || true
@@ -29,6 +42,7 @@ if [ ! -f "$BREWFILE" ]; then
   exit 1
 fi
 
+echo "📦 Installing packages from Brewfile..."
 brew file install --file "$BREWFILE"
 
-echo "brew-file install complete."
+echo "✅ Homebrew packages installation complete!"

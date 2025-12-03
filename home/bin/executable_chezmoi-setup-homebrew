@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# chezmoi-setup-homebrew
+# Manual Homebrew setup script for when automated installation fails
+
+echo "🍺 Manual Homebrew Setup"
+echo "========================"
+echo ""
+
+# Check if Homebrew is already installed
+if command -v brew >/dev/null 2>&1; then
+    echo "✅ Homebrew is already installed at: $(which brew)"
+    echo "   Version: $(brew --version | head -n1)"
+    echo ""
+    echo "Updating Homebrew..."
+    brew update
+    echo "✅ Homebrew updated!"
+    exit 0
+fi
+
+echo "Installing Homebrew requires:"
+echo "1. Admin/sudo access on this Mac"
+echo "2. Command Line Tools for Xcode (will be installed automatically)"
+echo "3. Internet connection"
+echo ""
+
+# Check if we have sudo access
+echo "🔍 Checking sudo access..."
+if sudo -n true 2>/dev/null; then
+    echo "✅ Sudo access confirmed"
+elif sudo -v 2>/dev/null; then
+    echo "✅ Sudo access granted"
+else
+    echo "❌ This script requires sudo access to install Homebrew."
+    echo ""
+    echo "Please:"
+    echo "1. Make sure you're an admin user on this Mac"
+    echo "2. Run this command to authenticate: sudo -v"
+    echo "3. Then re-run this script"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "🚀 Installing Homebrew..."
+echo "   This will:"
+echo "   - Install Command Line Tools for Xcode (if needed)"
+echo "   - Create /opt/homebrew directory (Apple Silicon) or /usr/local (Intel)"
+echo "   - Download and install Homebrew"
+echo ""
+
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Check installation
+if command -v brew >/dev/null 2>&1; then
+    echo ""
+    echo "✅ Homebrew installation successful!"
+    echo "   Installed at: $(which brew)"
+    echo "   Version: $(brew --version | head -n1)"
+
+    # Add to current shell session
+    if [[ -f "/opt/homebrew/bin/brew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        echo "✅ Homebrew added to current session"
+    elif [[ -f "/usr/local/bin/brew" ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+        echo "✅ Homebrew added to current session"
+    fi
+
+    echo ""
+    echo "🎉 Next steps:"
+    echo "1. Install brew-file: brew install rcmdnk/file/brew-file"
+    echo "2. Install packages: brew file install --file ~/.Brewfile"
+    echo "3. Or run the automated script: chezmoi apply"
+
+else
+    echo ""
+    echo "❌ Homebrew installation failed!"
+    echo ""
+    echo "Troubleshooting:"
+    echo "1. Check your internet connection"
+    echo "2. Make sure you have admin access"
+    echo "3. Try the manual installation:"
+    echo "   /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    echo "4. Visit https://brew.sh for more help"
+    echo ""
+    exit 1
+fi

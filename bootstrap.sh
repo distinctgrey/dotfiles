@@ -35,6 +35,13 @@ chezmoi init
 echo "📋 Applying dotfiles..."
 chezmoi apply -v
 
+echo ""
+echo "⚠️  Note: The next step will install Homebrew and packages."
+echo "   This requires sudo access and may prompt for your password."
+echo "   If installation fails with 'need sudo access', run:"
+echo "   sudo -v"
+echo "   Then re-run any failed scripts manually."
+
 echo "🔄 Switching to SSH remote for future operations..."
 cd ~/.local/share/chezmoi
 git remote set-url origin "git@github.com:distinctgrey/dotfiles.git"
