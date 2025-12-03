@@ -60,16 +60,16 @@ TAPS_FILE="$(mktemp)"
 FORMULAE_FILE="$(mktemp)"
 CASKS_FILE="$(mktemp)"
 
-grep -E '^[[:space:]]*tap[[:space:]]+"' "$BREWFILE" \
-  | sed -E 's/^[[:space:]]*tap[[:space:]]+"([^"]+)".*/\1/' \
+grep -E '^[[:space:]]*tap[[:space:]]+' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*tap[[:space:]]+["]?([^"[:space:]]+)["]?.*/\1/' \
   | sort -u > "$TAPS_FILE"
 
-grep -E '^[[:space:]]*brew[[:space:]]+"' "$BREWFILE" \
-  | sed -E 's/^[[:space:]]*brew[[:space:]]+"([^"]+)".*/\1/' \
+grep -E '^[[:space:]]*brew[[:space:]]+' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*brew[[:space:]]+["]?([^"[:space:]]+)["]?.*/\1/' \
   | sort -u > "$FORMULAE_FILE"
 
-grep -E '^[[:space:]]*cask[[:space:]]+"' "$BREWFILE" \
-  | sed -E 's/^[[:space:]]*cask[[:space:]]+"([^"]+)".*/\1/' \
+grep -E '^[[:space:]]*cask[[:space:]]+' "$BREWFILE" \
+  | sed -E 's/^[[:space:]]*cask[[:space:]]+["]?([^"[:space:]]+)["]?.*/\1/' \
   | sort -u > "$CASKS_FILE"
 
 render_list() {
