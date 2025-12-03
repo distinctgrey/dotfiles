@@ -164,10 +164,11 @@ macos:
         path: "System Settings → Displays"
         action: 'Turn off "Automatically adjust brightness" (if present).'
 
+
 brew:
     taps:
-        - homebrew/core
         - homebrew/cask
+        - homebrew/core
         - peterldowns/tap
         - rcmdnk/file
 
@@ -175,18 +176,46 @@ brew:
         - awscli
         - azure-cli
         - brew-file
+        - brotli
+        - ca-certificates
         - chezmoi
+        - cowsay
         - curl
         - eza
+        - gettext
         - git
         - git-delta
+        - libgit2
+        - libidn2
+        - libnghttp2
+        - libnghttp3
+        - libngtcp2
+        - libsodium
+        - libssh2
+        - libunistring
+        - libyaml
         - localias
+        - lz4
+        - mise
+        - mpdecimal
+        - oniguruma
+        - openssl@3
+        - pcre2
         - phrase-cli
+        - python@3.13
+        - readline
+        - rtmpdump
+        - sqlite
         - tailscale
+        - tree
+        - usage
         - wget
+        - xz
+        - zstd
 
     casks:
         - 1password
+        - 1password-cli
         - arc
         - beekeeper-studio
         - brave-browser
