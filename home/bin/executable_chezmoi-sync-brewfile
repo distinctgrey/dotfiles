@@ -53,28 +53,32 @@ fi
 PACKAGES_YAML="$SOURCE_DIR/.chezmoidata/packages.yaml"
 TMP_OUT="$(mktemp -t packages.yaml.XXXXXX)"
 
-# Parse Brewfile into arrays (alphabetized & unique)
-mapfile -t taps < <(grep -E '^[[:space:]]*tap[[:space:]]+"' "$BREWFILE" \
+# Parse Brewfile into temporary files (alphabetized & unique)
+TAPS_FILE="$(mktemp)"
+FORMULAE_FILE="$(mktemp)"
+CASKS_FILE="$(mktemp)"
+
+grep -E '^[[:space:]]*tap[[:space:]]+"' "$BREWFILE" \
   | sed -E 's/^[[:space:]]*tap[[:space:]]+"([^"]+)".*/\1/' \
-  | sort -u)
+  | sort -u > "$TAPS_FILE"
 
-mapfile -t formulae < <(grep -E '^[[:space:]]*brew[[:space:]]+"' "$BREWFILE" \
+grep -E '^[[:space:]]*brew[[:space:]]+"' "$BREWFILE" \
   | sed -E 's/^[[:space:]]*brew[[:space:]]+"([^"]+)".*/\1/' \
-  | sort -u)
+  | sort -u > "$FORMULAE_FILE"
 
-mapfile -t casks < <(grep -E '^[[:space:]]*cask[[:space:]]+"' "$BREWFILE" \
+grep -E '^[[:space:]]*cask[[:space:]]+"' "$BREWFILE" \
   | sed -E 's/^[[:space:]]*cask[[:space:]]+"([^"]+)".*/\1/' \
-  | sort -u)
+  | sort -u > "$CASKS_FILE"
 
 render_list() {
-  local -n arr="$1"
+  local file="$1"
   local indent="$2"
-  if (( ${#arr[@]} == 0 )); then
+  if [ ! -s "$file" ]; then
     echo "${indent}[]"
   else
-    for item in "${arr[@]}"; do
+    while IFS= read -r item; do
       echo "${indent}- ${item}"
-    done
+    done < "$file"
   fi
 }
 
@@ -82,11 +86,11 @@ render_list() {
   echo "# Generated from ${BREWFILE} on $(date -Iseconds)"
   echo "brew:"
   echo "  taps:"
-  render_list taps "    "
+  render_list "$TAPS_FILE" "    "
   echo "  formulae:"
-  render_list formulae "    "
+  render_list "$FORMULAE_FILE" "    "
   echo "  casks:"
-  render_list casks "    "
+  render_list "$CASKS_FILE" "    "
 } > "$TMP_OUT"
 
 # Show diff (dry-run always)
@@ -98,10 +102,13 @@ else
   cat "$TMP_OUT"
 fi
 echo "=== END DRY RUN ==="
-echo "Taps: ${#taps[@]}, Formulae: ${#formulae[@]}, Casks: ${#casks[@]}"
+TAPS_COUNT=$(wc -l < "$TAPS_FILE" | tr -d ' ')
+FORMULAE_COUNT=$(wc -l < "$FORMULAE_FILE" | tr -d ' ')
+CASKS_COUNT=$(wc -l < "$CASKS_FILE" | tr -d ' ')
+echo "Taps: $TAPS_COUNT, Formulae: $FORMULAE_COUNT, Casks: $CASKS_COUNT"
 
 if ! $WRITE; then
-  rm -f "$TMP_OUT"
+  rm -f "$TMP_OUT" "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
   exit 0
 fi
 
@@ -116,3 +123,6 @@ fi
 
 mv -f "$TMP_OUT" "$PACKAGES_YAML"
 echo "Wrote $PACKAGES_YAML"
+
+# Clean up temporary files
+rm -f "$TAPS_FILE" "$FORMULAE_FILE" "$CASKS_FILE"
