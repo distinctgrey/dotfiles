@@ -32,6 +32,11 @@ Host *.bitbucket.com
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519
 
+Host *.azure.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
 Host tailscaletmp
     # HostName 100.72.233.58
     HostName 20.4.29.60

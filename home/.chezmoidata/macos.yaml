@@ -165,6 +165,7 @@ macos:
         action: 'Turn off "Automatically adjust brightness" (if present).'
 
 
+
 brew:
     taps:
         - homebrew/cask
@@ -206,6 +207,7 @@ brew:
         - readline
         - rtmpdump
         - sqlite
+        - starship
         - tailscale
         - tree
         - usage
@@ -227,6 +229,7 @@ brew:
         - google-chrome
         - google-drive
         - iina
+        - keepingyouawake
         - microsoft-azure-storage-explorer
         - microsoft-edge
         - microsoft-office-businesspro
@@ -240,6 +243,7 @@ brew:
         - responsively
         - sequel-ace
         - slack
+        - tableplus
         - tailscale-app
         - visual-studio-code
         - warp
